@@ -181,7 +181,7 @@ DOMAIN = {
 
 SETTINGS = {
     'DOMAIN': DOMAIN,
-    'MONGO_HOST': '127.2.189.130',
+    'MONGO_HOST': '127.2.189.130',  # Add env variable here
     'MONGO_PORT': 27017,
     'MONGO_DBNAME': 'serverchip',
     # 'MONGO_USERNAME': '<your username>',

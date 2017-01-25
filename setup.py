@@ -1,14 +1,14 @@
 from setuptools import setup
 
-setup(name='YourAppName',
+setup(name='ServerhipAPI',
       version='1.0',
-      description='OpenShift App',
-      author='Your Name',
-      author_email='example@example.com',
-      url='http://www.python.org/sigs/distutils-sig/',
-     install_requires=[
+      description='Serverchip API made with Python Eve',
+      author='Samuel Murillo',
+      author_email='samuelmurillo333@gmail.com',
+      url='https://github.com/Serverchip/API',
+      install_requires=[
            'Eve==0.6.4',
            'bcrypt==3.1.2',
            'pytest==3.0.5'
-           ],
-     )
+           ]
+      )
