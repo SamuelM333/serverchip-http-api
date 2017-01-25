@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from eve import Eve
-from ./settings import DOMAIN
+from settings import DOMAIN
 
 # Add environment variable detection here
 # host = '127.0.0.1'
