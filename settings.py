@@ -1,18 +1,6 @@
 # -*- coding: utf-8 -*-
 from auth import BCryptAuthUser, BCryptAuthSnippet
 
-MONGO_HOST = '127.2.189.130'
-MONGO_PORT = 27017
-# MONGO_USERNAME = '<your username>'
-# MONGO_PASSWORD = '<your password>'
-MONGO_DBNAME = 'serverchip'
-X_DOMAINS = '*'
-X_HEADERS = '*'
-XML = False
-# AUTH_FIELD = "ID_FIELD"
-RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
-ITEM_METHODS = ['GET', 'PATCH', 'DELETE']
-
 user = {
     'item_title': 'user',
     'cache_control': '',
@@ -189,4 +177,19 @@ DOMAIN = {
     'user': user,
     'microchip': microchip,
     'report': report,
+}
+
+SETTINGS = {
+    'DOMAIN': DOMAIN,
+    'MONGO_HOST': '127.2.189.130',
+    'MONGO_PORT': 27017,
+    'MONGO_DBNAME': 'serverchip',
+    # 'MONGO_USERNAME': '<your username>',
+    # 'MONGO_PASSWORD': '<your password>',
+    'X_DOMAINS': '*',
+    'X_HEADERS': '*',
+    'XML': False,
+    'RESOURCE_METHODS': ['GET', 'POST', 'DELETE'],
+    'ITEM_METHODS': ['GET', 'PATCH', 'DELETE'],
+    # 'AUTH_FIELD': "ID_FIELD"
 }
