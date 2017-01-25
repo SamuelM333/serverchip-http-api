@@ -5,5 +5,10 @@ setup(name='YourAppName',
       description='OpenShift App',
       author='Your Name',
       author_email='example@example.com',
-      url='http://www.python.org/sigs/distutils-sig/'
+      url='http://www.python.org/sigs/distutils-sig/',
+     install_requires=[
+           'Eve==0.6.4',
+           'bcrypt==3.1.2',
+           'pytest==3.0.5'
+           ],
      )
