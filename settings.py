@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from auth import BCryptAuthUser, BCryptAuthSnippet
 
-MONGO_HOST = 'localhost'
+MONGO_HOST = '127.2.189.130'
 MONGO_PORT = 27017
 # MONGO_USERNAME = '<your username>'
 # MONGO_PASSWORD = '<your password>'
