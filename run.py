@@ -7,7 +7,7 @@ from eve import Eve
 host = '0.0.0.0'
 port = 5000
 
-app = Eve()
+app = Eve(settings='settings.py')
 
 if __name__ == '__main__':
     app.run(host=host, port=port, debug=True)
