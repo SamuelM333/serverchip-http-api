@@ -46,7 +46,7 @@ user = {
     'additional_lookup': {
         'url': 'regex("[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")',
         'field': 'email'
-    },
+    }
 }
 
 microchip = {
@@ -57,7 +57,7 @@ microchip = {
     'public_methods': ['GET', 'POST'],
     'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE'],
     'public_item_methods': ['GET'],
-    'authentication': BCryptAuthSnippet,
+    # 'authentication': BCryptAuthSnippet,
     'schema': {
         'name': {
             'type': 'string',
@@ -133,7 +133,7 @@ report = {
     'public_methods': ['GET', 'POST'],
     'item_methods': ['GET'],
     'public_item_methods': ['GET'],
-    'authentication': BCryptAuthSnippet,
+    # 'authentication': BCryptAuthSnippet,
     'schema': {
         'microchip': {
             'type': 'objectid',
