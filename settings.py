@@ -72,7 +72,7 @@ microchip = {
                 'resource': 'user',
                 # make the owner embeddable with ?embedded={"owner":1}
                 'embeddable': True
-            },
+            }
         },
         'description': {
             'type': 'string',
@@ -105,13 +105,16 @@ microchip = {
                     'conditions': {
                         'type': 'list',
                         'schema': {
-                            'name': {'type': 'string', 'required': True, 'maxlength': 60},
-                            'datetime': {'type': 'datetime'},
-                            'input_port': {
-                                'type': 'dict',
-                                'schema': {
-                                    'number': {'type': 'integer', 'required': True},
-                                    'state': {'type': 'boolean', 'required': True}
+                            'type': 'dict',
+                            'schema': {
+                                'name': {'type': 'string', 'required': True, 'maxlength': 60},
+                                'datetime': {'type': 'datetime'},
+                                'input_port': {
+                                    'type': 'dict',
+                                    'schema': {
+                                        'number': {'type': 'integer', 'required': True},
+                                        'state': {'type': 'boolean', 'required': True}
+                                    }
                                 }
                             }
                         }
