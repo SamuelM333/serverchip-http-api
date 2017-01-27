@@ -86,37 +86,51 @@ microchip = {
             'required': True,
             'unique': True,
             'regex': "(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$|^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$|^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*"
+        }
+    }
+}
+
+task = {
+    'item_title': 'tasks',
+    'cache_control': '',
+    'cache_expires': 0,
+    'resource_methods': ['GET', 'POST'],
+    'public_methods': ['GET', 'POST'],
+    'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE'],
+    'public_item_methods': ['GET'],
+    # 'authentication': BCryptAuthSnippet,
+    'schema': {
+        'name': {'type': 'string', 'required': True, 'maxlength': 60},
+        'description': {'type': 'string', 'maxlength': 120},
+        'microchip': {
+            'type': 'objectid',
+            'required': True,
+            'data_relation': {
+                'resource': 'microchip',
+                # embeddable with ?embedded={"microchip":1}
+                'embeddable': True
+            }
         },
-        'tasks': {
+        'output_port': {
+            'type': 'dict',
+            'required': True,
+            'schema': {
+                'number': {'type': 'integer', 'required': True},
+                'state': {'type': 'boolean', 'required': True}
+            }
+        },
+        'conditions': {
             'type': 'list',
             'schema': {
                 'type': 'dict',
                 'schema': {
                     'name': {'type': 'string', 'required': True, 'maxlength': 60},
-                    'description': {'type': 'string', 'maxlength': 120},
-                    'output_port': {
+                    'datetime': {'type': 'datetime'},
+                    'input_port': {
                         'type': 'dict',
-                        'required': True,
                         'schema': {
                             'number': {'type': 'integer', 'required': True},
                             'state': {'type': 'boolean', 'required': True}
-                        }
-                    },
-                    'conditions': {
-                        'type': 'list',
-                        'schema': {
-                            'type': 'dict',
-                            'schema': {
-                                'name': {'type': 'string', 'required': True, 'maxlength': 60},
-                                'datetime': {'type': 'datetime'},
-                                'input_port': {
-                                    'type': 'dict',
-                                    'schema': {
-                                        'number': {'type': 'integer', 'required': True},
-                                        'state': {'type': 'boolean', 'required': True}
-                                    }
-                                }
-                            }
                         }
                     }
                 }
@@ -126,7 +140,7 @@ microchip = {
 }
 
 report = {
-    'item_title': 'microchip',
+    'item_title': 'report',
     'cache_control': '',
     'cache_expires': 0,
     'resource_methods': ['GET', 'POST'],
@@ -179,12 +193,14 @@ report = {
 DOMAIN = {
     'user': user,
     'microchip': microchip,
+    'task': task,
     'report': report,
 }
 
 SETTINGS = {
     'DOMAIN': DOMAIN,
     'MONGO_HOST': '127.2.189.130',  # Add env variable here
+    # 'MONGO_HOST': '127.0.0.1',
     'MONGO_PORT': 27017,
     'MONGO_DBNAME': 'serverchip',
     # 'MONGO_USERNAME': '<your username>',
