@@ -9,7 +9,7 @@ user = {
     'public_methods': ['POST'],
     'item_methods': ['GET', 'PATCH', 'PUT'],
     'public_item_methods': ['GET'],
-    'authentication': BCryptAuthUser,
+    # 'authentication': BCryptAuthUser,
     'schema': {
         'name': {
             'type': 'string',
@@ -125,7 +125,22 @@ task = {
                 'type': 'dict',
                 'schema': {
                     'name': {'type': 'string', 'required': True, 'maxlength': 60},
-                    'datetime': {'type': 'datetime'},
+                    'datetime': {
+                        'type': 'dict',
+                        'schema': {
+                            'days': {
+                                'type': 'list',
+                                'required': True,
+                                'allowed': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
+                                            'Sunday'],
+                            },
+                            'hour': {
+                                # Regex here
+                                'type': 'string',
+                                'required': True
+                            }
+                        }
+                    },
                     'input_port': {
                         'type': 'dict',
                         'schema': {
@@ -199,14 +214,11 @@ DOMAIN = {
 
 SETTINGS = {
     'DOMAIN': DOMAIN,
-    'MONGO_HOST': '127.2.189.130',  # Add env variable here
-    # 'MONGO_HOST': '127.0.0.1',
-    'MONGO_PORT': 27017,
     'MONGO_DBNAME': 'serverchip',
     # 'MONGO_USERNAME': '<your username>',
     # 'MONGO_PASSWORD': '<your password>',
-    'X_DOMAINS': '*',
-    'X_HEADERS': '*',
+    'X_DOMAINS': ['https://serverchip.github.io/web-app'],
+    'X_HEADERS': ['If-Match', 'Authorization', 'Content-type'],
     'XML': False,
     'RESOURCE_METHODS': ['GET', 'POST', 'DELETE'],
     'ITEM_METHODS': ['GET', 'PATCH', 'DELETE'],

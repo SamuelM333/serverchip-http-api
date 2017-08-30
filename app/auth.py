@@ -1,7 +1,6 @@
 from bcrypt import hashpw
 from eve.auth import BasicAuth
-from flask import request
-from flask import current_app as app
+from flask import request, current_app as app
 
 
 class BCryptAuthUser(BasicAuth):
