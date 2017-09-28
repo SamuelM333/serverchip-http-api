@@ -1,5 +1,5 @@
 from flask import Blueprint
 
-main = Blueprint('main', __name__)
+websockets_blueprint = Blueprint('websockets', __name__)
 
-from . import events
+from app.websockets import events
