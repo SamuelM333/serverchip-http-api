@@ -2,9 +2,9 @@ from bson.objectid import ObjectId
 from bson.json_util import loads, dumps
 from flask import Blueprint, jsonify
 
+from settings import GPIO_PORTS
 from app import mongo
 
-BCM_PORTS = (4, 5, 6, 12, 13, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27)
 views_blueprint = Blueprint('views', __name__)
 
 
@@ -13,7 +13,7 @@ def get_available_ports(microchip_id):
     # Find the microchip or give a 404 right away
     # TODO test if microchip_id.type is ObjectId
     microchip = mongo.db.microchip.find_one_or_404({'_id': ObjectId(microchip_id)})
-    available_ports = list(BCM_PORTS)
+    available_ports = list(GPIO_PORTS)
     tasks = mongo.db.task.find({'microchip': ObjectId(microchip_id)})
 
     for task in tasks:
