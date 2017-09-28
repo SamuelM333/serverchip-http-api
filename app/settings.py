@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from auth import BCryptAuthUser, BCryptAuthSnippet
 
+GPIO_PORTS = [0, 2, 3, 4, 5, 10, 12, 13, 14, 15]
+
 user = {
     'item_title': 'user',
     'cache_control': '',
@@ -115,7 +117,11 @@ task = {
             'type': 'dict',
             'required': True,
             'schema': {
-                'number': {'type': 'integer', 'required': True},
+                'number': {
+                    'type': 'integer',
+                    'required': True,
+                    'allowed': GPIO_PORTS
+                },
                 'state': {'type': 'boolean', 'required': True}
             }
         },
@@ -131,20 +137,30 @@ task = {
                             'days': {
                                 'type': 'list',
                                 'required': True,
-                                'allowed': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
-                                            'Sunday'],
+                                'allowed': [
+                                    'Monday', 'Tuesday', 'Wednesday',
+                                    'Thursday', 'Friday', 'Saturday', 'Sunday'
+                                ]
                             },
                             'hour': {
-                                # Regex here
-                                'type': 'string',
-                                'required': True
+                                'type': 'dict',
+                                'required': True,
+                                'schema': {
+                                    # TODO Regex here HH:MM
+                                    'start': {'type': 'string', 'required': True, },
+                                    'end': {'type': 'string', 'required': True, },
+                                }
                             }
                         }
                     },
-                    'input_port': {
+                    'input_port': {  # TODO Change to support numeric and boolean values
                         'type': 'dict',
                         'schema': {
-                            'number': {'type': 'integer', 'required': True},
+                            'number': {
+                                'type': 'integer',
+                                'required': True,
+                                'allowed': GPIO_PORTS
+                            },
                             'state': {'type': 'boolean', 'required': True}
                         }
                     }
@@ -205,19 +221,20 @@ report = {
     }
 }
 
-DOMAIN = {
-    'user': user,
-    'microchip': microchip,
-    'task': task,
-    'report': report,
-}
-
 SETTINGS = {
-    'DOMAIN': DOMAIN,
+    'DOMAIN': {
+        'user': user,
+        'microchip': microchip,
+        'task': task,
+        'report': report,
+    },
     'MONGO_DBNAME': 'serverchip',
+    'DATE_CREATED': 'created',
     # 'MONGO_USERNAME': '<your username>',
     # 'MONGO_PASSWORD': '<your password>',
-    'X_DOMAINS': ['https://serverchip.github.io/web-app'],
+    # 'MONGO_AUTH_SOURCE': None,
+    # 'MONGO_AUTH_MECHANISM': None,
+    'X_DOMAINS': ['*'],
     'X_HEADERS': ['If-Match', 'Authorization', 'Content-type'],
     'XML': False,
     'RESOURCE_METHODS': ['GET', 'POST', 'DELETE'],
