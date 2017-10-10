@@ -2,6 +2,8 @@
 from auth import BCryptAuthUser, BCryptAuthSnippet
 
 GPIO_PORTS = [0, 2, 3, 4, 5, 10, 12, 13, 14, 15]
+HOUR_REGEX = '^(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])$'  # 24h regex
+EMAIL_REGEX = '[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
 
 user = {
     'item_title': 'user',
@@ -30,7 +32,7 @@ user = {
             'maxlength': 255,
             'required': True,
             'unique': True,
-            'regex': "[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"
+            'regex': EMAIL_REGEX
         },
         'password': {
             'type': 'string',
@@ -46,7 +48,7 @@ user = {
         }
     },
     'additional_lookup': {
-        'url': 'regex("[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")',
+        'url': 'regex("[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")', # TODO Use EMAIL_REGEX here
         'field': 'email'
     }
 }
@@ -131,11 +133,11 @@ task = {
                 'type': 'dict',
                 'schema': {
                     'name': {'type': 'string', 'required': True, 'maxlength': 60},
-                    'datetime': {
+                    'day_hour': {
                         'type': 'dict',
                         'schema': {
                             'days': {
-                                'type': 'list',
+                                'type': 'string',
                                 'required': True,
                                 'allowed': [
                                     'Monday', 'Tuesday', 'Wednesday',
@@ -146,9 +148,8 @@ task = {
                                 'type': 'dict',
                                 'required': True,
                                 'schema': {
-                                    # TODO Regex here HH:MM
-                                    'start': {'type': 'string', 'required': True, },
-                                    'end': {'type': 'string', 'required': True, },
+                                    'start': {'type': 'string', 'required': True, 'regex': HOUR_REGEX},
+                                    'end': {'type': 'string', 'required': True, 'regex': HOUR_REGEX}
                                 }
                             }
                         }
