@@ -1,29 +1,26 @@
 # -*- coding: utf-8 -*-
-from auth import BCryptAuthUser, BCryptAuthSnippet
+from auth import BCryptAuthUser
 
 GPIO_PORTS = [0, 2, 3, 4, 5, 10, 12, 13, 14, 15]
 HOUR_REGEX = '^(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])$'  # 24h regex
 EMAIL_REGEX = '[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
 
 user = {
-    'item_title': 'user',
     'cache_control': '',
     'cache_expires': 0,
     'resource_methods': ['GET', 'POST'],
     'public_methods': ['POST'],
     'item_methods': ['GET', 'PATCH', 'PUT'],
     'public_item_methods': ['GET'],
-    # 'authentication': BCryptAuthUser,
+    'authentication': BCryptAuthUser,
     'schema': {
         'name': {
             'type': 'string',
-            'minlength': 1,
             'maxlength': 120,
             'required': True,
         },
         'last_name': {
             'type': 'string',
-            'minlength': 1,
             'maxlength': 120,
         },
         'email': {
@@ -44,17 +41,16 @@ user = {
             'type': 'string',
             'allowed': ['user', 'admin', 'superuser'],
             'default': 'user',
-            'required': True
+            # 'required': True
         }
     },
     'additional_lookup': {
-        'url': 'regex("[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")', # TODO Use EMAIL_REGEX here
+        'url': 'regex("[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")',  # TODO Use EMAIL_REGEX here
         'field': 'email'
     }
 }
 
 microchip = {
-    'item_title': 'microchip',
     'cache_control': '',
     'cache_expires': 0,
     'resource_methods': ['GET', 'POST'],
@@ -80,7 +76,7 @@ microchip = {
         },
         'description': {
             'type': 'string',
-            'minlength': 3,
+            # 'minlength': 3,
             'maxlength': 120,
         },
         'ip': {
@@ -95,7 +91,6 @@ microchip = {
 }
 
 task = {
-    'item_title': 'tasks',
     'cache_control': '',
     'cache_expires': 0,
     'resource_methods': ['GET', 'POST'],
@@ -172,11 +167,10 @@ task = {
 }
 
 report = {
-    'item_title': 'report',
     'cache_control': '',
     'cache_expires': 0,
-    'resource_methods': ['GET', 'POST'],
-    'public_methods': ['GET', 'POST'],
+    'resource_methods': ['GET', 'POST', 'DELETE'],
+    'public_methods': ['GET', 'POST', 'DELETE'],
     'item_methods': ['GET'],
     'public_item_methods': ['GET'],
     # 'authentication': BCryptAuthSnippet,
@@ -193,7 +187,16 @@ report = {
         'details': {
             'type': 'dict',
             'schema': {
-                'task_name': {'type': 'string', 'required': True},
+                'task': {
+                    'type': 'objectid',
+                    'required': True,
+                    'data_relation': {
+                        'resource': 'task',
+                        # embeddable with ?embedded={"details.task":1}
+                        'embeddable': True
+                    }
+                },
+                # TODO Change to numbers or codes
                 'status': {
                     'type': 'dict',
                     'schema': {
@@ -205,16 +208,7 @@ report = {
                                 'Conditions were not given',
                                 'User override'
                             ]
-                        },
-                        'user': {
-                            'type': 'objectid',
-                            'required': True,
-                            'data_relation': {
-                                'resource': 'user',
-                                # embeddable with ?embedded={"user":1}
-                                'embeddable': True
-                            },
-                        },
+                        }
                     }
                 }
             }

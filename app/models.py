@@ -1,8 +1,8 @@
+from datetime import datetime
+
 from bson import ObjectId
 from flask_mongoengine import MongoEngine
 from flask_security import UserMixin
-
-# from mongoengine import Document, EmbeddedDocument
 
 db = MongoEngine()
 
@@ -36,8 +36,8 @@ class User(db.Document, UserMixin):
     password = db.StringField(min_length=8, max_length=255, required=True)
     role = db.StringField(max_length=120, required=True)
     _etag = db.StringField(max_length=120, required=True)
-    created = db.DateTimeField()
-    _updated = db.DateTimeField()
+    created = db.DateTimeField(default=datetime.utcnow)
+    _updated = db.DateTimeField(default=datetime.utcnow)
 
 
 class Microchip(db.Document):
@@ -47,17 +47,35 @@ class Microchip(db.Document):
     ip = db.StringField(max_length=120, required=True)  # TODO Regex here
     owner = db.ObjectIdField(required=True, db_field='user')
     _etag = db.StringField(max_length=120, required=True)
-    created = db.DateTimeField()
-    _updated = db.DateTimeField()
+    created = db.DateTimeField(default=datetime.utcnow)
+    _updated = db.DateTimeField(default=datetime.utcnow)
 
 
 class Task(db.Document):
     _id = db.ObjectIdField(primary_key=True, default=lambda: ObjectId())
     name = db.StringField(max_length=60)
     description = db.StringField(max_length=120)
-    microchip = db.ObjectIdField(required=True)  # db_field?
+    microchip = db.ObjectIdField(required=True)
     output_port = db.EmbeddedDocumentField(Port)
     conditions = db.EmbeddedDocumentListField(Condition)
     _etag = db.StringField(max_length=120, required=True)
-    created = db.DateTimeField()
-    _updated = db.DateTimeField()
+    created = db.DateTimeField(default=datetime.utcnow)
+    _updated = db.DateTimeField(default=datetime.utcnow)
+
+
+class ReportStatus(db.EmbeddedDocument):
+    code = db.StringField(required=True, max_length=60)  # TODO Change to numbers or a code
+    reason = db.StringField(required=True, max_length=120)
+    user = db.ObjectIdField(required=True)  # TODO Needed?
+
+
+class ReportDetails(db.EmbeddedDocument):
+    task = db.ObjectIdField(required=True)
+    status = db.EmbeddedDocumentField(ReportStatus, required=True)
+
+
+class Report(db.Document):
+    microchip = db.ObjectIdField(required=True)
+    details = db.EmbeddedDocumentField(ReportDetails, required=True)
+    created = db.DateTimeField(default=datetime.utcnow)
+    _updated = db.DateTimeField(default=datetime.utcnow)

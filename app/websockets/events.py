@@ -4,7 +4,9 @@ from bson import json_util
 from flask import request
 from flask_socketio import join_room, leave_room, emit, rooms
 from json import dumps
+from pprint import pprint
 
+from helpers import get_simple_task_dict
 from app.models import Task, User, Microchip
 from app import io
 
@@ -12,26 +14,6 @@ from app import io
 # TODO Classify events by namespaces
 
 daemon_sid = None
-
-
-# Helpers
-
-def get_simple_task_dict(task):
-    conditions = list()
-    simple_task = {
-        "_id": str(task["_id"]),
-        "output_port": task["output_port"]
-    }
-
-    print simple_task["_id"]
-
-    for condition in task["conditions"]:
-        if condition.get("input_port", False):
-            conditions.append({"input_port": condition["input_port"]})
-
-    simple_task['conditions'] = conditions
-
-    return simple_task
 
 
 # Test events
@@ -61,101 +43,100 @@ def on_join_room(data):
 
 # Daemon events
 
-@io.on('daemon_connected')
+@io.on("daemon_connected")
 def handle_daemon_connected(data):
     print data
     global daemon_sid
     daemon_sid = request.sid
-    join_room('daemon')
+    join_room("daemon")
 
 
-@io.on('add_task')
+@io.on("add_task")
 def handle_add_task(data):
-    print 'add_task', data
-    # task = mongo.db.task.find_one_or_404({'name': data['name']})
-    task = Task.get(name=data['name'])  # TODO Handle 404 here
-    emit('new_task', task, room='daemon')
+    print "add_task", data
+    # task = Task.objects.get(_id=data["_id"])  # TODO Handle 404 here or database fetch not needed?
+    # emit("new_task", task, room="daemon")
 
 
 # Microchip events
 
-@io.on('microchip_connected')
+@io.on("microchip_connected")
 def handle_microchip_connected(data):
-    print 'microchip_connected'
-    print data, request.sid, rooms(request.sid)
-    microchip = Microchip.get(ip=data['ip'])  # TODO Handle 404 here
-
-    print 'microchip', microchip
-
-    if microchip is not None:
-        join_room(data['ip'])
-        tasks = Task.objects(microchip=microchip['_id'])
-        simple_tasks = list()
-        for task in tasks:
-            simple_tasks.append(get_simple_task_dict(task))
+    print "microchip_connected", data["ip"]
+    try:
+        microchip = Microchip.objects.get(ip=data["ip"])
+        tasks = Task.objects(microchip=microchip["_id"])
+        join_room(data["ip"])
 
         response = {
-            'sid': request.sid,
-            'tasks': simple_tasks
+            "sid": request.sid,
+            "tasks": [
+                get_simple_task_dict(task) for task in tasks
+            ]
         }
         json_response = json_util.dumps(response).replace('"', '\'')
-        print json_response
-        emit('microchip_connected_ack', json_response)
-    else:
-        emit('microchip_connected_ack', None)
+        emit("microchip_connected_ack", json_response)
+    except Microchip.DoesNotExist as e:
+        # Handle 404
+        print e
+        emit("microchip_connected_ack", None)
 
 
-@io.on('new_input_port_condition')
+@io.on("new_input_port_condition") # TODO Needed?
 def handle_new_input_port_condition(data):
-    io.emit('add_new_input_port_condition', data, room=data['microchip_ip'])
+    io.emit("add_new_input_port_condition", data, room=data["microchip_ip"])
 
 
-@io.on('get_port_status_response_server')
+@io.on("get_port_status_response_server")
 def handle_get_port_status_response(data):
-    emit('get_port_status_response_daemon', data, room='daemon')
+    emit("get_port_status_response_daemon", data, room="daemon")
 
 
-@io.on('get_port_status_request')
+@io.on("get_port_status_request")
 def handle_get_port_status_request(data):
-    microchip = Microchip.get(_id=ObjectId(data['microchip_id'])) # TODO Handle 404 here
-    emit('get_port_status', {}, room=microchip['ip'])
+    microchip = Microchip.objects.get(_id=ObjectId(data["microchip_id"]))  # TODO Handle 404 here
+    emit("get_port_status", {}, room=microchip.ip)
 
 
-@io.on('stop_task_request_server')
+@io.on("stop_task_request_server")
 def handle_stop_task_request_server(task):
     # TODO Write to logs here
     # Send here Simple Task dict to microchip
     json_response = json_util.dumps(get_simple_task_dict(task)).replace('"', '\'')
     print json_response
-    emit('stop_task_request_microchip', json_response, room=task['microchip']['ip'])
+    emit("stop_task_request_microchip", json_response, room=task["microchip"]["ip"])
 
 
-@io.on('run_task_request_server')
+@io.on("run_task_request_server")
 def handle_run_task_request_server(data):
     # TODO Write to logs here
     # Send here Simple Task dict to microchip
     json_response = json_util.dumps(data).replace('"', '\'')
-    print 'handle_run_task_request_server', json_response
-    emit('run_task_request_microchip', json_response, room=data['ip'])
+    print "handle_run_task_request_server", json_response
+    emit("run_task_request_microchip", json_response, room=data["ip"])
 
 
-@io.on('run_task_request_microchip_ack')
+@io.on("run_task_request_microchip_ack")
 def handle_run_task_request_microchip_ack(data):
-    print 'run_task_request_microchip_ack', data
+    print "run_task_request_microchip_ack", data
 
 
-@io.on('notify_port_change')
+@io.on("notify_port_change")
 def handle_notify_port_change(data):
-    # dat: task_id, port { port_number, status }
-    task = Task.get(_id=ObjectId(data['task_id'])) # TODO Handle 404 here
+    # data: task_id: string, port: { port_number: int, status: boolean }
+    print data
+    if data["task_id"] is not None:
+        task = Task.objects.get(_id=ObjectId(data["task_id"]))  # TODO Handle 404 here
 
-    emit('run_task_if_conditions_match', json_util.dumps(task), room='daemon')
+        payload = json_util.dumps(task.to_mongo().to_dict())
+        print "emit('run_task_if_conditions_match')"
+        emit("run_task_if_conditions_match", payload, room="daemon")
 
 
 # General events
 
-@io.on('disconnect')
+@io.on("disconnect")
 def handle_disconnected():
     if request.sid == daemon_sid:
         # TODO Throw an error here
-        print 'daemon disconnected'
+        print "daemon disconnected"
