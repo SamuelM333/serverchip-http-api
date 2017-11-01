@@ -2,8 +2,7 @@
 from bson.objectid import ObjectId
 from bson import json_util
 from flask import request
-from flask_socketio import join_room, leave_room, emit, rooms
-from json import dumps
+from flask_socketio import join_room, emit
 from pprint import pprint
 
 from helpers import get_simple_task_dict
@@ -52,10 +51,11 @@ def handle_daemon_connected(data):
 
 
 @io.on("add_task")
-def handle_add_task(data):
-    print "add_task", data
-    # task = Task.objects.get(_id=data["_id"])  # TODO Handle 404 here or database fetch not needed?
-    # emit("new_task", task, room="daemon")
+def handle_add_task(task):
+    print "add_task", task
+
+    pprint(json_util.dumps(task))
+    emit("new_task", json_util.dumps(task), room="daemon", namespace="/")
 
 
 # Microchip events
@@ -128,9 +128,9 @@ def handle_notify_port_change(data):
     if data["task_id"] is not None:
         task = Task.objects.get(_id=ObjectId(data["task_id"]))  # TODO Handle 404 here
 
-        payload = json_util.dumps(task.to_mongo().to_dict())
-        print "emit('run_task_if_conditions_match')"
-        emit("run_task_if_conditions_match", payload, room="daemon")
+        # payload = json_util.dumps(task.to_mongo().to_dict())
+        # print "emit('run_task_if_conditions_match')"
+        emit("run_task_if_conditions_match", data["task_id"], room="daemon")
 
 
 # General events
@@ -140,3 +140,13 @@ def handle_disconnected():
     if request.sid == daemon_sid:
         # TODO Throw an error here
         print "daemon disconnected"
+
+
+def pre_tasks_insert_callback(task):
+    # TODO Check ports
+    print "Pre task", task
+
+def post_tasks_insert_callback(tasks):
+    # TODO Call daemon to setup new task
+    for task in tasks:
+        handle_add_task(task)

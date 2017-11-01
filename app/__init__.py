@@ -7,7 +7,6 @@ from flask_security import Security, MongoEngineUserDatastore
 
 from models import db, User
 from settings import SETTINGS
-from views import post_tasks_insert_callback, pre_tasks_insert_callback
 
 io = SocketIO()
 user_datastore = MongoEngineUserDatastore(db, User, None)
@@ -30,18 +29,19 @@ def create_app():
     mail = Mail(app)
     CORS(app)
 
-    from app.websockets import websockets_blueprint
     from app.views import views_blueprint
+    from app.websockets import websockets_blueprint
+    from app.websockets.events import post_tasks_insert_callback, pre_tasks_insert_callback
     # Setup Flask-Security
     security = Security(app, user_datastore)
     app.register_blueprint(websockets_blueprint)
     app.register_blueprint(views_blueprint)
 
-    # Eve event hooks
-    # app.on_insert_task += pre_tasks_insert_callback
-    # app.on_inserted_task += post_tasks_insert_callback
-
     db.init_app(app)
     io.init_app(app)
+
+    # Eve event hooks
+    app.on_insert_task += pre_tasks_insert_callback
+    app.on_inserted_task += post_tasks_insert_callback
 
     return app

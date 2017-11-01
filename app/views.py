@@ -1,7 +1,6 @@
 from bson.objectid import ObjectId, InvalidId
 from bson.json_util import loads, dumps
-from flask import Blueprint, jsonify, abort
-from flask_socketio import emit
+from flask import Blueprint, jsonify, abort, request
 from mongoengine import DoesNotExist
 
 from settings import GPIO_PORTS
@@ -37,18 +36,3 @@ def get_available_ports(microchip_id):
     except DoesNotExist as e:
         print e
         return "document not found"  # TODO Return 404
-
-
-def pre_tasks_insert_callback(document):
-    # TODO Check ports
-    print "Pre task", document
-
-def post_tasks_insert_callback(tasks):
-    # TODO Call daemon to setup new task
-    # print type(documents), documents
-    for task in tasks:
-        print type(task), task["_id"]
-        emit('add_task', task, namespace="/")
-        # emit("new_task", task, room="daemon")
-
-
